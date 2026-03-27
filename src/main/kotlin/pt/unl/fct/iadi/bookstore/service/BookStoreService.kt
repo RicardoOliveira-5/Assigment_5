@@ -49,9 +49,9 @@ class BookStoreService{
     fun getBook(isbn: String): Book? {
         return books.find { it.isbn == isbn } ?: throw BookNotFoundException(BOOK_NOT_FOUND)
     }
-    fun replaceBook(isbn: String, book: Book): Book? {
-        val existingBook = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        books.remove(existingBook)
+    fun replaceBook(isbn: String, book: Book): Book {
+        val existingBook = books.find { it.isbn == isbn }
+        if (existingBook != null) books.remove(existingBook)
         books.add(book)
         return book
     }

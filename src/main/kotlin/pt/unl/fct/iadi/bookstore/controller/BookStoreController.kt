@@ -74,12 +74,8 @@ class BookStoreController(
             price = request.price,
             image = request.image
         )
-        val updatedBook = service.replaceBook(isbn, book)
-        return if (updatedBook != null) {
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
+         service.replaceBook(isbn, book)
+        return ResponseEntity.ok().build()
     }
 
     override fun updateBookPartially(

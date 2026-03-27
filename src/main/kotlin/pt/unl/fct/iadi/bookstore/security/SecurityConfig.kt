@@ -56,6 +56,7 @@ class SecurityConfig {
                 // Swagger público
                 .requestMatchers(SWAGGER_UI, V3_API_DOCS).permitAll()
                 .requestMatchers("/v3/api-docs", SWAGGER_UI, V3_API_DOCS).permitAll()
+                .requestMatchers("/v3/api-docs", "/v3/api-docs/**", SWAGGER_UI).permitAll()
 
 
                 // GET requests → qualquer utilizador autenticado

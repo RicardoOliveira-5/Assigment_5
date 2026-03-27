@@ -56,4 +56,7 @@ class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST)
             .body(mapOf("message" to message))
     }
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<ApiError> =
+        ResponseEntity(ApiError("BAD_REQUEST", ex.message ?: "Invalid input"), HttpStatus.BAD_REQUEST)
 }

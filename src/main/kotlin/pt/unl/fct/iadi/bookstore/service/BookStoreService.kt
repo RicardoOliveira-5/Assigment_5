@@ -105,7 +105,7 @@ class BookStoreService {
         }
         // 2️⃣ Validação manual do DTO (rating e comment)
         if (review.rating !in 1..5) {
-            throw BookNotFoundException("Rating must be between 1 and 5")
+            throw IllegalArgumentException("Rating must be between 1 and 5")
         }
 
 

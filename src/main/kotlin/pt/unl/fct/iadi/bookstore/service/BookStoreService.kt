@@ -103,6 +103,11 @@ class BookStoreService {
         if (!books.containsKey(isbn)) {
             throw BookNotFoundException(isbn)
         }
+        // 2️⃣ Validação manual do DTO (rating e comment)
+        if (review.rating !in 1..5) {
+            throw BookNotFoundException("Rating must be between 1 and 5")
+        }
+
 
         // ✅ SÓ DEPOIS: autenticação
         val username = SecurityContextHolder.getContext().authentication?.name

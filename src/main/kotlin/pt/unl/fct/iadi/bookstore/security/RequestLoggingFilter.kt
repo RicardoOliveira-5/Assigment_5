@@ -20,7 +20,6 @@ class RequestLoggingFilter(
         response: HttpServletResponse,
         chain: FilterChain
     ) {
-
         val token = request.getHeader("X-Api-Token")
         val appName = apiTokenService.getAppNameFromToken(token) ?: "unknown"
 
@@ -28,12 +27,6 @@ class RequestLoggingFilter(
 
         val principal = SecurityContextHolder.getContext().authentication?.name ?: "anonymous"
 
-        logger.info("[{}] [{}] {} {} [{}]",
-            appName,
-            principal,
-            request.method,
-            request.requestURI,
-            response.status
-        )
+        logger.info("[${appName}] [${principal}] ${request.method} ${request.requestURI} [${response.status}]")
     }
 }

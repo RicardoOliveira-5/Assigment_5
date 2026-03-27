@@ -15,6 +15,7 @@ class BookStoreService{
         private const val BOOK_ALREADY_EXISTS = "Book with ISBN %s already exists"
     }
     //val author = SecurityContextHolder.getContext().authentication.name
+    /*
     val books: MutableList<Book> = mutableListOf(Book(
         isbn = "978-3-16-148410-0",
         title = "The Great Gatsby",
@@ -26,6 +27,9 @@ class BookStoreService{
             2L to Review(2L, 10, "Really enjoyed it.", author = "admin")
         )
     ))
+
+     */
+    val books: MutableList<Book> = mutableListOf()
 
     private fun getCurrentUser(): String =
         SecurityContextHolder.getContext().authentication.name

@@ -55,9 +55,11 @@ class SecurityConfig {
             auth
                 // Swagger público
                 .requestMatchers(SWAGGER_UI, V3_API_DOCS).permitAll()
+                .requestMatchers("/v3/api-docs", SWAGGER_UI, V3_API_DOCS).permitAll()
+
 
                 // GET requests → qualquer utilizador autenticado
-                .requestMatchers(HttpMethod.GET, BOOKS_ENDPOINT).authenticated()
+                .requestMatchers(HttpMethod.GET, BOOKS_ENDPOINT).permitAll()
 
                 // Criar / editar livros → EDITOR ou ADMIN
                 .requestMatchers(HttpMethod.POST, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)

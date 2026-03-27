@@ -110,5 +110,8 @@ class BookStoreService{
             false
         }
     }
+    fun reset() {
+        books.clear()
+    }
 
 }

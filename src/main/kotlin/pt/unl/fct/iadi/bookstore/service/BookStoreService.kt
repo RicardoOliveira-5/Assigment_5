@@ -47,16 +47,17 @@ class BookStoreService {
         return book.toResponse()
     }
 
-    fun replaceBook(isbn: String, book: CreateBookRequest): BookResponse {
-        if (!books.containsKey(isbn)) {
-            createBook(book)
-            return book.toBook().toResponse()
+    fun replaceBook(isbn: String, book: CreateBookRequest): ResponseEntity<BookResponse> {
+        return if (!books.containsKey(isbn)) {
+            val newBook = book.toBook().copy(isbn = isbn) // usa o isbn do path
+            books[isbn] = newBook
+            val location = URI.create("/books/$isbn")
+            ResponseEntity.created(location).body(newBook.toResponse())
+        } else {
+            val updatedBook = book.toBook().copy(isbn = isbn)
+            books[isbn] = updatedBook
+            ResponseEntity.ok(updatedBook.toResponse())
         }
-        val updatedBook = book.toBook()
-
-        books[isbn] = updatedBook
-
-        return updatedBook.toResponse()
     }
 
     fun updateBook(isbn: String, book: UpdateBookRequest): BookResponse {

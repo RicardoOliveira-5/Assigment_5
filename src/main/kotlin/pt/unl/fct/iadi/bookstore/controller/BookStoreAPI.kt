@@ -120,7 +120,7 @@ interface BookStoreAPI {
     )
     @PutMapping("/{isbn}")
     fun replaceBook(@PathVariable isbn: String,
-                    @Valid @RequestBody request: CreateBookRequest): BookResponse
+                    @Valid @RequestBody request: CreateBookRequest): ResponseEntity<BookResponse>
 
 
 

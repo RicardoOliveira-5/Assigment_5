@@ -53,11 +53,12 @@ class SecurityConfig {
 
         http.authorizeHttpRequests { auth ->
             auth
-                // Swagger público
-                .requestMatchers(SWAGGER_UI, V3_API_DOCS).permitAll()
-                .requestMatchers("/v3/api-docs", SWAGGER_UI, V3_API_DOCS).permitAll()
-                .requestMatchers("/v3/api-docs", "/v3/api-docs/**", SWAGGER_UI).permitAll()
-                .requestMatchers("/v3/api-docs/**", "/v3/api-docs", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers(
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
 
 
                 // GET requests → qualquer utilizador autenticado

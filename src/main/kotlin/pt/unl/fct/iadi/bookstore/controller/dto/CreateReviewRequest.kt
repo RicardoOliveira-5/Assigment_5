@@ -7,8 +7,11 @@ import jakarta.validation.constraints.NotBlank
 
 data class CreateReviewRequest(
 
+    @field:Min(1)
+    @field:Max(5)
     val rating: Int,
 
+    @field:NotBlank
     val comment: String
 ) {
     fun toReview(): ReviewResponse {

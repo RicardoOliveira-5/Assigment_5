@@ -8,5 +8,4 @@ data class Book(
     var author: String,
     var price: BigDecimal,
     var image: String,
-    val reviews: MutableMap<Long, Review> = mutableMapOf()
 )

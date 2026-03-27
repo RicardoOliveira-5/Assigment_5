@@ -7,8 +7,9 @@ import pt.unl.fct.iadi.bookstore.service.BookStoreService
 @Component
 class ReviewSecurity(private val service: BookStoreService) {
 
-    fun isAuthor(isbn: String, reviewId: Long, authentication: Authentication): Boolean {
-        val review = service.listReviews(isbn)[reviewId] ?: return false
-        return review.author == authentication.name
+    fun isAuthor(reviewId: Long, authentication: Authentication): Boolean {
+        val review = service.findReviewById(reviewId)
+        val username = authentication.name
+        return review.author == username
     }
 }

@@ -3,7 +3,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal
 
 @Schema(description = "Data transfer object for Book")
-data class BookDTO(
+data class BookResponse(
     @field:Schema(description = "ISBN of the book", example = "978-3-16-148410-0")
     val isbn: String,
 

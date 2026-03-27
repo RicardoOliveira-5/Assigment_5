@@ -14,8 +14,8 @@ data class CreateReviewRequest(
     @field:NotBlank
     val comment: String
 ) {
-    fun toReview(): ReviewDTO {
-        return ReviewDTO(
+    fun toReview(): ReviewResponse {
+        return ReviewResponse(
             id = null,
             rating = this.rating,
             comment = this.comment,

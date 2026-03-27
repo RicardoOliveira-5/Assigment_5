@@ -1,127 +1,202 @@
 package pt.unl.fct.iadi.bookstore.service
 
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
-import pt.unl.fct.iadi.bookstore.controller.dto.ReviewDTO
+import pt.unl.fct.iadi.bookstore.controller.dto.BookResponse
+import pt.unl.fct.iadi.bookstore.controller.dto.CreateBookRequest
+import pt.unl.fct.iadi.bookstore.controller.dto.CreateReviewRequest
+import pt.unl.fct.iadi.bookstore.controller.dto.ReviewResponse
 import pt.unl.fct.iadi.bookstore.controller.dto.UpdateBookRequest
 import pt.unl.fct.iadi.bookstore.controller.dto.UpdateReviewRequest
 import pt.unl.fct.iadi.bookstore.domain.Book
 import pt.unl.fct.iadi.bookstore.domain.Review
+import java.net.URI
 
 @Service
-class BookStoreService{
-    companion object {
-        private const val BOOK_NOT_FOUND = "Book with ISBN %s not found"
-        private const val BOOK_ALREADY_EXISTS = "Book with ISBN %s already exists"
-    }
-    //val author = SecurityContextHolder.getContext().authentication.name
-    /*
-    val books: MutableList<Book> = mutableListOf(Book(
-        isbn = "978-3-16-148410-0",
-        title = "The Great Gatsby",
-        author = "F. Scott Fitzgerald",
-        price = 10.99.toBigDecimal(),
-        image = "https://example.com/great-gatsby.jpg",
-        reviews = mutableMapOf(
-            1L to Review(1L, 5, "Amazing read!", author ="admin" ),
-            2L to Review(2L, 10, "Really enjoyed it.", author = "admin")
-        )
-    ))
+class BookStoreService {
 
-     */
-    val books: MutableList<Book> = mutableListOf()
+    private val books = mutableMapOf<String, Book>()
+    private val reviews = mutableMapOf<String, MutableList<Review>>()
+    private var reviewCounter = 1L
 
-    private fun getCurrentUser(): String =
-        SecurityContextHolder.getContext().authentication.name
-
-    fun listBooks(): List<Book> {
-        return books
+    fun getAllBooks(): List<BookResponse> {
+        return books.values.map { it.toResponse() }
     }
 
-    fun createBook(book: Book): Book {
-        books.removeIf { it.isbn == book.isbn }
-        books.add(book)
-        return book
+
+    fun createBook(book: CreateBookRequest): ResponseEntity<BookResponse> {
+        if (books.containsKey(book.isbn)) {
+            throw BookAlreadyExistsException(book.isbn)
+        }
+
+        val newBook = book.toBook()
+
+        books[newBook.isbn] = newBook
+
+        val location = URI.create("/books/${book.isbn}")
+
+        return ResponseEntity
+            .created(location)
+            .build()
     }
-    // get a single book
-    fun getBook(isbn: String): Book {
-        return books.find { it.isbn == isbn }
-            ?: throw BookNotFoundException(BOOK_NOT_FOUND.format(isbn))
+
+    fun getBook(isbn: String): BookResponse {
+        val book = books[isbn] ?: throw BookNotFoundException(isbn)
+
+        return book.toResponse()
     }
-    fun replaceBook(isbn: String, book: Book): Book {
-        val existingBook = books.find { it.isbn == isbn }
-        if (existingBook != null) books.remove(existingBook)
-        books.add(book)
-        return book
+
+    fun replaceBook(isbn: String, book: CreateBookRequest): BookResponse {
+        if (!books.containsKey(isbn)) {
+            createBook(book)
+            return book.toBook().toResponse()
+        }
+        val updatedBook = book.toBook()
+
+        books[isbn] = updatedBook
+
+        return updatedBook.toResponse()
     }
-    fun partialUpdateBook(isbn: String, request: UpdateBookRequest): Book {
-        val existingBook = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
+
+    fun updateBook(isbn: String, book: UpdateBookRequest): BookResponse {
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
+        }
+
+        val existingBook = books[isbn]!!
         val updatedBook = existingBook.copy(
-            title = request.title ?: existingBook.title,
-            author = request.author ?: existingBook.author,
-            price = request.price ?: existingBook.price,
-            image = request.image ?: existingBook.image
+            title = book.title ?: existingBook.title,
+            author = book.author ?: existingBook.author,
+            price = book.price ?: existingBook.price,
+            image = book.image ?: existingBook.image
         )
-        books.remove(existingBook)
-        books.add(updatedBook)
-        return updatedBook
-    }
-    fun deleteBook(isbn: String): Boolean {
-        val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        return books.remove(book)
 
+        books[isbn] = updatedBook
+
+        return updatedBook.toResponse()
     }
 
-    fun listReviews(isbn: String): MutableMap<Long, Review> {
-        val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        return book.reviews
+    fun deleteBook(isbn:String): ResponseEntity<Void>{
+        if(!books.containsKey(isbn)){
+            throw BookNotFoundException(isbn)
+        }
+
+        books.remove(isbn)
+        reviews.remove(isbn)
+        return ResponseEntity.noContent().build()
     }
 
-    fun createReview(isbn: String, review: ReviewDTO): Review {
-        val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        val newId = (book.reviews.keys.maxOrNull() ?: 0L) + 1
-        val review = Review(id = newId, rating = review.rating, comment = review.comment, author = getCurrentUser())
-        book.reviews[newId] = review
-        return review
+    fun getBookReviews(isbn: String): List<ReviewResponse> {
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
+        }
+
+        return reviews[isbn]?.map { it.toResponse() } ?: emptyList()
+
     }
-    fun replaceReview(isbn: String, reviewId: Long, review: ReviewDTO): Review {
-        val book = getBook(isbn)
 
-        val existing = book.reviews[reviewId]
-            ?: throw ReviewNotFoundException(reviewId)
+    fun createReview(isbn: String, review: CreateReviewRequest): ResponseEntity<ReviewResponse> {
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
+        }
+        val username = SecurityContextHolder.getContext().authentication.name
 
-        val updatedReview = existing.copy(
+
+        val newReview = Review(
+            id = reviewCounter++,
             rating = review.rating,
             comment = review.comment,
-            author = getCurrentUser()
+            author = username
         )
 
-        book.reviews[reviewId] = updatedReview
-        return updatedReview
+        reviews.computeIfAbsent(isbn) { mutableListOf() }.add(newReview)
+
+        val location = URI.create("/books/$isbn/reviews/${newReview.id}")
+
+        return ResponseEntity
+            .created(location)
+            .body(newReview.toResponse())
     }
 
-    fun partiallyUpdateReview(isbn: String, reviewId: Long, review: UpdateReviewRequest): Review? {
-        val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        val existingReview = book.reviews[reviewId] ?: throw ReviewNotFoundException(reviewId)
+    fun replaceReview(isbn: String,id:Long, review: CreateReviewRequest): ReviewResponse {
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
+        }
+
+        val existingReviews = reviews[isbn] ?: throw ReviewNotFoundException(id)
+
+        val reviewIndex = existingReviews.indexOfFirst { it.id == id }
+        if (reviewIndex == -1) {
+            throw ReviewNotFoundException(id)
+        }
+
+        val updatedReview = Review(
+            id = id,
+            rating = review.rating,
+            comment = review.comment,
+            author = existingReviews[reviewIndex].author
+        )
+
+        existingReviews[reviewIndex] = updatedReview
+
+        return updatedReview.toResponse()
+    }
+
+    fun updateReview(isbn: String, id: Long, review: UpdateReviewRequest): ReviewResponse {
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
+        }
+
+        val existingReviews = reviews[isbn] ?: throw ReviewNotFoundException(id)
+
+        val reviewIndex = existingReviews.indexOfFirst { it.id == id }
+        if (reviewIndex == -1) {
+            throw ReviewNotFoundException(id)
+        }
+
+        val existingReview = existingReviews[reviewIndex]
         val updatedReview = existingReview.copy(
             rating = review.rating ?: existingReview.rating,
             comment = review.comment ?: existingReview.comment
         )
-        book.reviews[reviewId] = updatedReview
-        return updatedReview
+
+        existingReviews[reviewIndex] = updatedReview
+
+        return updatedReview.toResponse()
     }
 
-    fun deleteReview(isbn: String, reviewId: Long): Boolean {
-        val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        return if (book.reviews.containsKey(reviewId)) {
-            book.reviews.remove(reviewId)
-            true
-        } else {
-            false
+    fun deleteReview(isbn: String, id: Long): ResponseEntity<Void> {
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
         }
-    }
-    fun reset() {
-        books.clear()
+
+        val existingReviews = reviews[isbn] ?: throw ReviewNotFoundException(id)
+
+        val reviewIndex = existingReviews.indexOfFirst { it.id == id }
+        if (reviewIndex == -1) {
+            throw ReviewNotFoundException(id)
+        }
+
+        existingReviews.removeAt(reviewIndex)
+
+        return ResponseEntity.noContent().build()
     }
 
+    private fun Book.toResponse() =
+        BookResponse(isbn, title, author, price, image)
+
+    private fun Review.toResponse() =
+        ReviewResponse(id, rating, comment, author)
+
+    fun findReviewById(reviewId: Long): Review {
+        reviews.values.forEach { reviewList ->
+            reviewList.forEach { review ->
+                if (review.id == reviewId) {
+                    return review
+                }
+            }
+        }
+        throw ReviewNotFoundException(reviewId)
+    }
 }

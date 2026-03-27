@@ -1,6 +1,5 @@
 package pt.unl.fct.iadi.bookstore.security
 
-import org.springframework.boot.autoconfigure.security.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -21,6 +20,10 @@ class SecurityConfig {
     companion object {
         const val ROLE_EDITOR = "EDITOR"
         const val ROLE_ADMIN = "ADMIN"
+
+        const val BOOKS_ENDPOINT = "/books/**"
+        const val SWAGGER_UI = "/swagger-ui/**"
+        const val V3_API_DOCS = "/v3/api-docs/**"
     }
 
     @Bean
@@ -51,18 +54,18 @@ class SecurityConfig {
         http.authorizeHttpRequests { auth ->
             auth
                 // Swagger público
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(SWAGGER_UI, V3_API_DOCS).permitAll()
 
                 // GET requests → qualquer utilizador autenticado
-                .requestMatchers(HttpMethod.GET, "/books/**").authenticated()
+                .requestMatchers(HttpMethod.GET, BOOKS_ENDPOINT).authenticated()
 
                 // Criar / editar livros → EDITOR ou ADMIN
-                .requestMatchers(HttpMethod.POST, "/books/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PUT, "/books/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PATCH, "/books/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.POST, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PUT, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PATCH, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
 
                 // DELETE book → ADMIN
-                .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole(ROLE_ADMIN)
+                .requestMatchers(HttpMethod.DELETE, BOOKS_ENDPOINT).hasRole(ROLE_ADMIN)
 
                 // resto autenticado
                 .anyRequest().authenticated()

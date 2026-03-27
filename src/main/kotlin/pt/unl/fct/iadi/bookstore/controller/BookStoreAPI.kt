@@ -248,7 +248,7 @@ interface BookStoreAPI {
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,
         @RequestBody request: UpdateReviewRequest
-    ): ResponseEntity<Unit>
+    ): ResponseEntity<ReviewDTO>
 
 
     // -------------------------

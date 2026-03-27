@@ -117,7 +117,8 @@ class BookStoreController(
             ReviewDTO(
                 id = id,
                 rating = review.rating,
-                comment = review.comment
+                comment = review.comment,
+                author = review.author
             )
         }
     }
@@ -139,31 +140,32 @@ class BookStoreController(
         request: CreateReviewRequest
     ): ResponseEntity<ReviewDTO> {
         val review = service.replaceReview(isbn, reviewId, request.toReview())
-        return if (review != null) {
-            ResponseEntity.ok(
-                ReviewDTO(
-                    id = review.id,
-                    rating = review.rating,
-                    comment = review.comment
-                )
+        return ResponseEntity.ok(
+            ReviewDTO(
+                id = review.id,
+                rating = review.rating,
+                comment = review.comment,
+                author = review.author
             )
-        } else {
-            ResponseEntity.notFound().build()
-        }
+        )
     }
 
     override fun updateReviewPartially(
         isbn: String,
         reviewId: Long,
         request: UpdateReviewRequest
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<ReviewDTO> {
 
         val updatedReview = service.partiallyUpdateReview(isbn, reviewId, request)
-        return if (updatedReview != null) {
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.notFound().build()
-        }
+
+        return ResponseEntity.ok(
+            ReviewDTO(
+                id = updatedReview!!.id,
+                rating = updatedReview.rating,
+                comment = updatedReview.comment,
+                author = updatedReview.author
+            )
+        )
     }
 
     override fun deleteReview(

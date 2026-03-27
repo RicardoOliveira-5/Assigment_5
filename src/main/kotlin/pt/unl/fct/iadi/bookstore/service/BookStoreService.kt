@@ -39,9 +39,7 @@ class BookStoreService{
     }
 
     fun createBook(book: Book): Book {
-        if(books.any { it.isbn == book.isbn }) {
-            throw BookAlreadyExistsException(BOOK_ALREADY_EXISTS)
-        }
+        books.removeIf { it.isbn == book.isbn }
         books.add(book)
         return book
     }

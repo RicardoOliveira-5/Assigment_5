@@ -66,7 +66,7 @@ class BookStoreController(
     override fun replaceBook(
         @PathVariable isbn: String,
         @RequestBody request: CreateBookRequest
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<BookDTO> {
         val book = Book(
             isbn = isbn,
             title = request.title,
@@ -74,9 +74,12 @@ class BookStoreController(
             price = request.price,
             image = request.image
         )
-         service.replaceBook(isbn, book)
-        return ResponseEntity.ok().build()
+        val updated = service.replaceBook(isbn, book)
+        return ResponseEntity.ok(
+            BookDTO(isbn = updated.isbn, title = updated.title, author = updated.author, price = updated.price, image = updated.image)
+        )
     }
+
 
     override fun updateBookPartially(
         isbn: String,

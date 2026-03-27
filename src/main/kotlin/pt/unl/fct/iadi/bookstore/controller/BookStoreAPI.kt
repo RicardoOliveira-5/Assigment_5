@@ -106,7 +106,7 @@ interface BookStoreAPI {
     fun replaceBook(
         @PathVariable isbn: String,
         @Valid @RequestBody request: CreateBookRequest
-    ): ResponseEntity<Unit>
+    ): ResponseEntity<BookDTO>
 
     // -------------------------
     // US5 - Partial Update Book

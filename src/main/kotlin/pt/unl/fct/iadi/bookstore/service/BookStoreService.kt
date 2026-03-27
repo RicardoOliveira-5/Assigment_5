@@ -22,8 +22,8 @@ class BookStoreService{
         price = 10.99.toBigDecimal(),
         image = "https://example.com/great-gatsby.jpg",
         reviews = mutableMapOf(
-            1L to Review(1L, 5, "Amazing read!", author =getCurrentUser() ),
-            2L to Review(2L, 10, "Really enjoyed it.", author = getCurrentUser())
+            1L to Review(1L, 5, "Amazing read!", author ="admin" ),
+            2L to Review(2L, 10, "Really enjoyed it.", author = "admin")
         )
     ))
 

@@ -18,7 +18,8 @@ data class CreateReviewRequest(
         return ReviewDTO(
             id = null,
             rating = this.rating,
-            comment = this.comment
+            comment = this.comment,
+            author = null
         )
     }
 }

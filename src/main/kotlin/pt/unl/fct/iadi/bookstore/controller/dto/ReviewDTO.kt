@@ -4,5 +4,5 @@ data class ReviewDTO(
     val id: Long?,
     val rating: Int,
     val comment: String,
-    val author : String
+    val author : String?
 )

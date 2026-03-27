@@ -102,6 +102,15 @@ class BookStoreService {
         if (!books.containsKey(isbn)) {
             throw BookNotFoundException(isbn)
         }
+        // ✅ 1. Primeiro: livro existe?
+        if (!books.containsKey(isbn)) {
+            throw BookNotFoundException(isbn)
+        }
+
+        // ✅ 2. Depois: validação MANUAL
+        if (review.rating !in 1..5) {
+            throw IllegalArgumentException("Rating must be between 1 and 5")
+        }
         // ✅ SÓ DEPOIS: autenticação
         val username = SecurityContextHolder.getContext().authentication?.name
             ?: throw AccessDeniedException("User not authenticated")

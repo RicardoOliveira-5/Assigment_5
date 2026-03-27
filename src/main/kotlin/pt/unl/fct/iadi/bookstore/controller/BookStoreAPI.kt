@@ -220,7 +220,7 @@ interface BookStoreAPI {
     )
     @PostMapping("/{isbn}/reviews")
     fun createReview(@PathVariable isbn: String,
-                     @RequestBody request: CreateReviewRequest): ResponseEntity<ReviewResponse>
+                     @Valid @RequestBody request: CreateReviewRequest): ResponseEntity<ReviewResponse>
 
 
     @Operation(

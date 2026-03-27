@@ -130,30 +130,34 @@ class BookStoreService {
             .body(newReview.toResponse())
     }
 
-    fun replaceReview(isbn: String,id:Long, review: CreateReviewRequest): ReviewResponse {
-        if (!books.containsKey(isbn)) {
-            throw BookNotFoundException(isbn)
+    fun replaceReview(isbn: String, review: CreateReviewRequest): ReviewResponse {
+        // 1️⃣ Verifica se o livro existe
+        if (!books.containsKey(isbn)) throw BookNotFoundException(isbn)
+
+        val username = SecurityContextHolder.getContext().authentication?.name
+            ?: throw AccessDeniedException("User not authenticated")
+
+        val reviewsList = reviews.computeIfAbsent(isbn) { mutableListOf() }
+
+        // 2️⃣ Verifica se já existe review do autor
+        val existingReview = reviewsList.find { it.author == username }
+        if (existingReview != null) {
+            // Substitui a review existente
+            existingReview.rating = review.rating
+            existingReview.comment = review.comment
+            return existingReview.toResponse() // 200 OK
         }
 
-        val existingReviews = reviews[isbn] ?: throw ReviewNotFoundException(id)
-
-        val reviewIndex = existingReviews.indexOfFirst { it.id == id }
-        if (reviewIndex == -1) {
-            throw ReviewNotFoundException(id)
-        }
-
-        val updatedReview = Review(
-            id = id,
+        // 3️⃣ Cria nova review
+        val newReview = Review(
+            id = reviewCounter++,
             rating = review.rating,
             comment = review.comment,
-            author = existingReviews[reviewIndex].author
+            author = username
         )
-
-        existingReviews[reviewIndex] = updatedReview
-
-        return updatedReview.toResponse()
+        reviewsList.add(newReview)
+        return newReview.toResponse() // 201 Created
     }
-
     fun updateReview(isbn: String, id: Long, review: UpdateReviewRequest): ReviewResponse {
         if (!books.containsKey(isbn)) {
             throw BookNotFoundException(isbn)

@@ -2,6 +2,8 @@ package pt.unl.fct.iadi.bookstore.controller.dto
 
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+
 
 data class CreateReviewRequest(
 
@@ -9,7 +11,7 @@ data class CreateReviewRequest(
     @field:Max(10)
     val rating: Int,
 
-    @field:Min(1)
+    @field:NotBlank
     val comment: String
 ) {
     fun toReview(): ReviewDTO {

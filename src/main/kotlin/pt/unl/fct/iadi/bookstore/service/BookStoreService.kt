@@ -39,9 +39,7 @@ class BookStoreService{
     }
 
     fun createBook(book: Book): Book {
-        if (books.contains(book)) {
-            throw BookAlreadyExistsException(book.isbn)
-        }
+        books.removeIf { it.isbn == book.isbn }
         books.add(book)
         return book
     }
@@ -92,8 +90,6 @@ class BookStoreService{
         val existing = book.reviews[reviewId]
             ?: throw ReviewNotFoundException(reviewId)
 
-
-
         val updatedReview = existing.copy(
             rating = review.rating,
             comment = review.comment,
@@ -116,16 +112,13 @@ class BookStoreService{
     }
 
     fun deleteReview(isbn: String, reviewId: Long): Boolean {
-        val book =books.find { it.isbn == isbn } ?: throw BookNotFoundException(BOOK_NOT_FOUND.format(isbn))
-
-
-
-        if (!book.reviews.containsKey(reviewId)) {
-            throw ReviewNotFoundException(reviewId)
+        val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
+        return if (book.reviews.containsKey(reviewId)) {
+            book.reviews.remove(reviewId)
+            true
+        } else {
+            false
         }
-
-        book.reviews.remove(reviewId)
-        return true
     }
     fun reset() {
         books.clear()

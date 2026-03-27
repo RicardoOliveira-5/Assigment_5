@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import pt.unl.fct.iadi.bookstore.service.BookAlreadyExistsException
 import pt.unl.fct.iadi.bookstore.service.BookNotFoundException
-import pt.unl.fct.iadi.bookstore.service.ForbiddenException
 import pt.unl.fct.iadi.bookstore.service.ReviewNotFoundException
 
 data class ApiError(val error: String, val message: String)
@@ -65,17 +64,4 @@ class GlobalExceptionHandler {
             .status(HttpStatus.BAD_REQUEST)
             .body(mapOf("message" to message))
     }
-    @ExceptionHandler(BookNotFoundException::class)
-    fun handleBookNotFound(e: BookNotFoundException) =
-        ResponseEntity.status(404).body( mapOf("message" to (e.message ?: "Book not found")))
-
-
-
-    @ExceptionHandler(BookAlreadyExistsException::class)
-    fun handleBookExists(e: BookAlreadyExistsException) =
-        ResponseEntity.status(409).body( mapOf("message" to (e.message ?: "Book already exists")))
-
-    @ExceptionHandler(ForbiddenException::class)
-    fun handleForbidden(e: ForbiddenException) =
-        ResponseEntity.status(403).body( mapOf("message" to (e.message ?: "Forbidden")))
 }

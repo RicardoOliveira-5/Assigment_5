@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.WebRequest
 import pt.unl.fct.iadi.bookstore.service.BookAlreadyExistsException
 import pt.unl.fct.iadi.bookstore.service.BookNotFoundException
+import pt.unl.fct.iadi.bookstore.service.InvalidReviewException
 import pt.unl.fct.iadi.bookstore.service.ReviewNotFoundException
 
 data class ApiError(val error: String, val message: String)
@@ -40,6 +41,9 @@ class GlobalExceptionHandler {
         headers.add(HttpHeaders.CONTENT_LANGUAGE, language)
         return ResponseEntity(ApiError("NOT_FOUND", message), headers, HttpStatus.NOT_FOUND)
     }
+    @ExceptionHandler(InvalidReviewException::class)
+    fun handleInvalidReview(ex: InvalidReviewException) =
+        ResponseEntity(ApiError("BAD_REQUEST", ex.message ?: "Invalid review"), HttpStatus.BAD_REQUEST)
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<Map<String,String>> {

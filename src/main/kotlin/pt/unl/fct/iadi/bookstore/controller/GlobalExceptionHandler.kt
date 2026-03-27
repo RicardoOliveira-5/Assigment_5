@@ -18,6 +18,13 @@ class GlobalExceptionHandler {
 
 
 
+    @ExceptionHandler(BookAlreadyExistsException::class)
+    fun handleBookAlreadyExists(ex: BookAlreadyExistsException) =
+        ResponseEntity(ApiError("CONFLICT", ex.message ?: "Book already exists"), HttpStatus.CONFLICT)
+
+    @ExceptionHandler(ReviewNotFoundException::class)
+    fun handleReviewNotFound(ex: ReviewNotFoundException) =
+        ResponseEntity(ApiError("NOT_FOUND", ex.message ?: "Review not found"), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception) =
@@ -45,21 +52,16 @@ class GlobalExceptionHandler {
         return ResponseEntity(body, headers, HttpStatus.NOT_FOUND)
     }
 
-        @ExceptionHandler(BookNotFoundException::class)
-    fun handleBookNotFound(ex: BookNotFoundException): ResponseEntity<ApiError> =
-        ResponseEntity(ApiError("NOT_FOUND", ex.message ?: "Book not found"), HttpStatus.NOT_FOUND)
-
-    @ExceptionHandler(BookAlreadyExistsException::class)
-    fun handleBookAlreadyExists(ex: BookAlreadyExistsException): ResponseEntity<ApiError> =
-        ResponseEntity(ApiError("CONFLICT", ex.message ?: "Book already exists"), HttpStatus.CONFLICT)
-
-    @ExceptionHandler(ReviewNotFoundException::class)
-    fun handleReviewNotFound(ex: ReviewNotFoundException): ResponseEntity<ApiError> =
-        ResponseEntity(ApiError("NOT_FOUND", ex.message ?: "Review not found"), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ApiError> {
-        val message = ex.bindingResult.fieldErrors.firstOrNull()?.defaultMessage ?: "Validation error"
-        return ResponseEntity(ApiError("BAD_REQUEST", message), HttpStatus.BAD_REQUEST)
+    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<Map<String,String>> {
+
+        val message = ex.bindingResult
+            .fieldErrors
+            .firstOrNull()?.defaultMessage ?: "Validation error"
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(mapOf("message" to message))
     }
 }

@@ -25,10 +25,12 @@ class GlobalExceptionHandler {
     @ExceptionHandler(ReviewNotFoundException::class)
     fun handleReviewNotFound(ex: ReviewNotFoundException) =
         ResponseEntity(ApiError("NOT_FOUND", ex.message ?: "Review not found"), HttpStatus.NOT_FOUND)
-
+/*
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception) =
         ResponseEntity(ApiError("INTERNAL_ERROR", ex.message ?: "Unexpected error"), HttpStatus.INTERNAL_SERVER_ERROR)
+
+ */
 
     @ExceptionHandler(BookNotFoundException::class)
     fun handleBookNotFound(ex: BookNotFoundException, request: WebRequest): ResponseEntity<ApiError> {

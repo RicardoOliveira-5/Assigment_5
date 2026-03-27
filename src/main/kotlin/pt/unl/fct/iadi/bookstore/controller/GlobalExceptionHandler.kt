@@ -12,56 +12,24 @@ import pt.unl.fct.iadi.bookstore.service.BookNotFoundException
 import pt.unl.fct.iadi.bookstore.service.ReviewNotFoundException
 
 data class ApiError(val error: String, val message: String)
-
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
-
+    @ExceptionHandler(BookNotFoundException::class)
+    fun handleBookNotFound(ex: BookNotFoundException): ResponseEntity<ApiError> =
+        ResponseEntity(ApiError("NOT_FOUND", ex.message ?: "Book not found"), HttpStatus.NOT_FOUND)
 
     @ExceptionHandler(BookAlreadyExistsException::class)
-    fun handleBookAlreadyExists(ex: BookAlreadyExistsException) =
+    fun handleBookAlreadyExists(ex: BookAlreadyExistsException): ResponseEntity<ApiError> =
         ResponseEntity(ApiError("CONFLICT", ex.message ?: "Book already exists"), HttpStatus.CONFLICT)
 
     @ExceptionHandler(ReviewNotFoundException::class)
-    fun handleReviewNotFound(ex: ReviewNotFoundException) =
+    fun handleReviewNotFound(ex: ReviewNotFoundException): ResponseEntity<ApiError> =
         ResponseEntity(ApiError("NOT_FOUND", ex.message ?: "Review not found"), HttpStatus.NOT_FOUND)
 
-    @ExceptionHandler(Exception::class)
-    fun handleGenericException(ex: Exception) =
-        ResponseEntity(ApiError("INTERNAL_ERROR", ex.message ?: "Unexpected error"), HttpStatus.INTERNAL_SERVER_ERROR)
-
-    @ExceptionHandler(BookNotFoundException::class)
-    fun handleBookNotFound(
-        ex: BookNotFoundException,
-        request: WebRequest
-    ): ResponseEntity<Map<String, String>> {
-
-        val language = request.getHeader("Accept-Language") ?: "en"
-
-        val message =
-            if (language.startsWith("pt"))
-                "Livro não encontrado"
-            else
-                "Book not found"
-
-        val headers = HttpHeaders()
-        headers.add(HttpHeaders.CONTENT_LANGUAGE, language)
-
-        val body = mapOf("message" to message)
-
-        return ResponseEntity(body, headers, HttpStatus.NOT_FOUND)
-    }
-
-
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<Map<String,String>> {
-
-        val message = ex.bindingResult
-            .fieldErrors
-            .firstOrNull()?.defaultMessage ?: "Validation error"
-
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(mapOf("message" to message))
+    fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ApiError> {
+        val message = ex.bindingResult.fieldErrors.firstOrNull()?.defaultMessage ?: "Validation error"
+        return ResponseEntity(ApiError("BAD_REQUEST", message), HttpStatus.BAD_REQUEST)
     }
 }

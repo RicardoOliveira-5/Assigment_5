@@ -14,7 +14,7 @@ class BookStoreService{
         private const val BOOK_NOT_FOUND = "Book with ISBN %s not found"
         private const val BOOK_ALREADY_EXISTS = "Book with ISBN %s already exists"
     }
-    val author = SecurityContextHolder.getContext().authentication.name
+    //val author = SecurityContextHolder.getContext().authentication.name
     val books: MutableList<Book> = mutableListOf(Book(
         isbn = "978-3-16-148410-0",
         title = "The Great Gatsby",
@@ -22,10 +22,13 @@ class BookStoreService{
         price = 10.99.toBigDecimal(),
         image = "https://example.com/great-gatsby.jpg",
         reviews = mutableMapOf(
-            1L to Review(1L, 5, "Amazing read!", author =author ),
-            2L to Review(2L, 10, "Really enjoyed it.", author = author)
+            1L to Review(1L, 5, "Amazing read!", author =getCurrentUser() ),
+            2L to Review(2L, 10, "Really enjoyed it.", author = getCurrentUser())
         )
     ))
+
+    private fun getCurrentUser(): String =
+        SecurityContextHolder.getContext().authentication.name
 
     fun listBooks(): List<Book> {
         return books
@@ -74,13 +77,13 @@ class BookStoreService{
     fun createReview(isbn: String, review: ReviewDTO): Review {
         val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
         val newId = (book.reviews.keys.maxOrNull() ?: 0L) + 1
-        val review = Review(id = newId, rating = review.rating, comment = review.comment, author = author)
+        val review = Review(id = newId, rating = review.rating, comment = review.comment, author = getCurrentUser())
         book.reviews[newId] = review
         return review
     }
     fun replaceReview(isbn: String, reviewId: Long, review: ReviewDTO): Review? {
         val book = getBook(isbn) ?: throw BookNotFoundException(BOOK_NOT_FOUND)
-        val updatedReview = Review(id = reviewId, rating = review.rating, comment = review.comment, author = author)
+        val updatedReview = Review(id = reviewId, rating = review.rating, comment = review.comment, author = getCurrentUser())
         book.reviews[reviewId] = updatedReview
         return updatedReview
     }

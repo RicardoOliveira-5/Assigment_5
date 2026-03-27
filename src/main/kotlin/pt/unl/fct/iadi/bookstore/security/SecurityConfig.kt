@@ -17,57 +17,58 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig {
+
+    companion object {
+        const val ROLE_EDITOR = "EDITOR"
+        const val ROLE_ADMIN = "ADMIN"
+    }
+
     @Bean
-    fun passwordEncoder(): PasswordEncoder =
-        BCryptPasswordEncoder()
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+
     @Bean
-    fun userDetailsService(encoder: PasswordEncoder) = InMemoryUserDetailsManager (
+    fun userDetailsService(encoder: PasswordEncoder) = InMemoryUserDetailsManager(
         User.withUsername("editor1")
             .password(encoder.encode("editor1pass"))
-            .roles("EDITOR")
+            .roles(ROLE_EDITOR)
             .build(),
 
         User.withUsername("editor2")
             .password(encoder.encode("editor2pass"))
-            .roles("EDITOR")
+            .roles(ROLE_EDITOR)
             .build(),
 
         User.withUsername("admin")
             .password(encoder.encode("adminpass"))
-            .roles("ADMIN")
-            .build())
-
+            .roles(ROLE_ADMIN)
+            .build()
+    )
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { it.disable() }
+        http.csrf { it.disable() }
 
-            .authorizeHttpRequests { auth ->
-                auth
-                    // Swagger público
-                .requestMatchers(
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**"
-                    ).permitAll()
+        http.authorizeHttpRequests { auth ->
+            auth
+                // Swagger público
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
-                    // GET requests → qualquer utilizador autenticado
-                    .requestMatchers(HttpMethod.GET, "/books/**").authenticated()
+                // GET requests → qualquer utilizador autenticado
+                .requestMatchers(HttpMethod.GET, "/books/**").authenticated()
 
-                    // Criar / editar livros → EDITOR ou ADMIN
-                    .requestMatchers(HttpMethod.POST, "/books/**").hasAnyRole("EDITOR","ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/books/**").hasAnyRole("EDITOR","ADMIN")
-                    .requestMatchers(HttpMethod.PATCH, "/books/**").hasAnyRole("EDITOR","ADMIN")
+                // Criar / editar livros → EDITOR ou ADMIN
+                .requestMatchers(HttpMethod.POST, "/books/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PUT, "/books/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PATCH, "/books/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
 
-                    // DELETE book → ADMIN
-                    .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole("ADMIN")
+                // DELETE book → ADMIN
+                .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole(ROLE_ADMIN)
 
-                    // resto autenticado
-                    .anyRequest().authenticated()
-            }
+                // resto autenticado
+                .anyRequest().authenticated()
+        }
 
-            .httpBasic {}
-
+        http.httpBasic {}
         return http.build()
     }
 }

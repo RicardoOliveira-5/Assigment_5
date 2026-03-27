@@ -1,6 +1,7 @@
 package pt.unl.fct.iadi.bookstore.service
 
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import pt.unl.fct.iadi.bookstore.controller.dto.BookResponse
@@ -101,9 +102,9 @@ class BookStoreService {
         if (!books.containsKey(isbn)) {
             throw BookNotFoundException(isbn)
         }
-        val authentication = SecurityContextHolder.getContext().authentication
-
-        val username = authentication?.name ?: throw IllegalStateException("Not authenticated")
+        // ✅ SÓ DEPOIS: autenticação
+        val username = SecurityContextHolder.getContext().authentication?.name
+            ?: throw AccessDeniedException("User not authenticated")
 
 
         val newReview = Review(

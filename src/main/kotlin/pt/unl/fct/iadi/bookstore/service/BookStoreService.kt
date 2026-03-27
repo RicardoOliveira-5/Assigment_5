@@ -158,6 +158,7 @@ class BookStoreService {
         reviewsList.add(newReview)
         return newReview.toResponse() // 201 Created
     }
+
     fun updateReview(isbn: String, id: Long, review: UpdateReviewRequest): ReviewResponse {
         if (!books.containsKey(isbn)) {
             throw BookNotFoundException(isbn)

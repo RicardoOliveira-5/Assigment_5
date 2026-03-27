@@ -4,4 +4,5 @@ data class Review(
     val id : Long,
     var rating: Int,
     var comment: String,
+    val author : String
 )

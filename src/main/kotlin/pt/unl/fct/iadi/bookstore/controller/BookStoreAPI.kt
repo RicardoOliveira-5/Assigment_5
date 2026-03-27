@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.ErrorResponse
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -215,6 +216,7 @@ interface BookStoreAPI {
         )
     )
     @PutMapping("/books/{isbn}/reviews/{reviewId}", consumes = ["application/json"])
+    @PreAuthorize("@reviewSecurity.isAuthor(#isbn, #reviewId, authentication)")
     fun replaceReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,
@@ -241,6 +243,7 @@ interface BookStoreAPI {
         )
     )
     @PatchMapping("/books/{isbn}/reviews/{reviewId}", consumes = ["application/json"])
+    @PreAuthorize("@reviewSecurity.isAuthor(#isbn, #reviewId, authentication)")
     fun updateReviewPartially(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,
@@ -262,6 +265,7 @@ interface BookStoreAPI {
         )
     )
     @DeleteMapping("/books/{isbn}/reviews/{reviewId}")
+    @PreAuthorize("@reviewSecurity.isAuthor(#isbn, #reviewId, authentication)")
     fun deleteReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long

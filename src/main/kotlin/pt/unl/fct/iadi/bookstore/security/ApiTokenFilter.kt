@@ -31,4 +31,8 @@ class ApiTokenFilter(
 
         filterChain.doFilter(request, response)
     }
+
+    fun tokenToApp(token: String?): String? {
+        return apiTokenService.getAppNameFromToken(token)
+    }
 }

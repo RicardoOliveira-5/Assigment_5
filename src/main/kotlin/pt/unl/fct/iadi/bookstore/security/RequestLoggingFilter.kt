@@ -1,32 +1,24 @@
 package pt.unl.fct.iadi.bookstore.security
 
-import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
-import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.servlet.HandlerInterceptor
 
 @Component
-class RequestLoggingFilter(
-    private val apiTokenService: ApiTokenService
-) : OncePerRequestFilter() {
+class LoggingInterceptor(private val registry: ApiTokenFilter) : HandlerInterceptor {
+    private val log = LoggerFactory.getLogger(LoggingInterceptor::class.java)
 
-    private val logger = LoggerFactory.getLogger(RequestLoggingFilter::class.java)
-
-    override fun doFilterInternal(
+    override fun afterCompletion(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        chain: FilterChain
+        handler: Any,
+        ex: Exception?,
     ) {
         val token = request.getHeader("X-Api-Token")
-        val appName = apiTokenService.getAppNameFromToken(token) ?: "unknown"
-
-        chain.doFilter(request, response)
-
-        val principal = SecurityContextHolder.getContext().authentication?.name ?: "anonymous"
-
-        logger.info("[${appName}] [${principal}] ${request.method} ${request.requestURI} [${response.status}]")
+        val appName = registry.tokenToApp(token) ?: "unknown" // call the function, not index it
+        val principal = request.userPrincipal?.name ?: "anonymous"
+        log.info("[{}] [{}] {} {} [{}]", appName, principal, request.method, request.requestURI, response.status)
     }
 }

@@ -16,8 +16,7 @@ class LoggingInterceptor(private val registry: ApiTokenFilter) : HandlerIntercep
         handler: Any,
         ex: Exception?,
     ) {
-        val token = request.getHeader("X-Api-Token")
-        val appName = registry.tokenToApp(token) ?: "unknown" // call the function, not index it
+        val appName = registry.tokenToApp(request.getHeader("X-Api-Token")) ?: "unknown"
         val principal = request.userPrincipal?.name ?: "anonymous"
         log.info("[{}] [{}] {} {} [{}]", appName, principal, request.method, request.requestURI, response.status)
     }

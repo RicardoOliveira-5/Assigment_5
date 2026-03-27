@@ -67,6 +67,7 @@ class BookStoreController(
         @PathVariable isbn: String,
         @RequestBody request: CreateBookRequest
     ): ResponseEntity<BookDTO> {
+        val exists = try { service.getBook(isbn); true } catch (e: Exception) { false }
         val book = Book(
             isbn = isbn,
             title = request.title,
@@ -75,9 +76,12 @@ class BookStoreController(
             image = request.image
         )
         val updated = service.replaceBook(isbn, book)
-        return ResponseEntity.ok(
-            BookDTO(isbn = updated.isbn, title = updated.title, author = updated.author, price = updated.price, image = updated.image)
-        )
+        val dto = BookDTO(isbn = updated.isbn, title = updated.title, author = updated.author, price = updated.price, image = updated.image)
+        return if (exists) {
+            ResponseEntity.ok(dto)
+        } else {
+            ResponseEntity.created(URI("/books/$isbn")).body(dto)
+        }
     }
 
 

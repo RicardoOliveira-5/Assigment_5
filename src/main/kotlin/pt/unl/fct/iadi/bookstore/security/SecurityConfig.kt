@@ -69,6 +69,12 @@ class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
                 .requestMatchers(HttpMethod.PATCH, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
 
+                // Criar / editar reviews → EDITOR ou ADMIN
+                .requestMatchers(HttpMethod.POST, "$BOOKS_ENDPOINT/reviews/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PUT, "$BOOKS_ENDPOINT/reviews/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+                .requestMatchers(HttpMethod.PATCH, "$BOOKS_ENDPOINT/reviews/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
+
+
                 // DELETE book → ADMIN
                 .requestMatchers(HttpMethod.DELETE, BOOKS_ENDPOINT).hasRole(ROLE_ADMIN)
 

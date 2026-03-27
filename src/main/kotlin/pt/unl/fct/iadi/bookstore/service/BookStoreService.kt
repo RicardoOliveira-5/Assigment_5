@@ -101,7 +101,9 @@ class BookStoreService {
         if (!books.containsKey(isbn)) {
             throw BookNotFoundException(isbn)
         }
-        val username = SecurityContextHolder.getContext().authentication.name
+        val authentication = SecurityContextHolder.getContext().authentication
+
+        val username = authentication?.name ?: throw IllegalStateException("Not authenticated")
 
 
         val newReview = Review(

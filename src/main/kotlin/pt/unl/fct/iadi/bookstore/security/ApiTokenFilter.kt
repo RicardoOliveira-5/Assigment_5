@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-@Profile("!test")
+//@Profile("!test")
 class ApiTokenFilter(
     private val apiTokenService: ApiTokenService
 ) : OncePerRequestFilter() {
@@ -20,7 +20,12 @@ class ApiTokenFilter(
     ) {
 
         val token = request.getHeader("X-Api-Token")
+        val path = request.requestURI
 
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
+            filterChain.doFilter(request, response)
+            return
+        }
         if (token != null && !apiTokenService.isValidToken(token) ) {
 
             response.status = HttpServletResponse.SC_UNAUTHORIZED

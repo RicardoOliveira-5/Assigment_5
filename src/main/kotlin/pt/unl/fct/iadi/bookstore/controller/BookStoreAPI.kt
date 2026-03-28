@@ -243,6 +243,11 @@ interface BookStoreAPI {
                 responseCode = "400",
                 description = "Validation error",
                 content = [Content(schema = Schema(implementation = ErrorResponse::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Review not found",
+                content = [Content(schema = Schema(implementation = ErrorResponse::class))]
             )
         ]
     )

@@ -1,5 +1,9 @@
 package pt.unl.fct.iadi.bookstore.security
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
+import io.swagger.v3.oas.annotations.security.SecurityScheme
+import io.swagger.v3.oas.annotations.security.SecuritySchemes
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -15,6 +19,19 @@ import org.springframework.security.web.SecurityFilterChain
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@SecuritySchemes(
+    SecurityScheme(
+        name = "basicAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "basic",
+    ),
+    SecurityScheme(
+        name = "apiToken",
+        type = SecuritySchemeType.APIKEY,
+        `in` = SecuritySchemeIn.HEADER,
+        paramName = "X-Api-Token",
+    ),
+)
 class SecurityConfig {
 
     companion object {

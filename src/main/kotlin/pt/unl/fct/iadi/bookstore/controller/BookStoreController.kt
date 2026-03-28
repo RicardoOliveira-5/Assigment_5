@@ -29,7 +29,7 @@ class BookstoreController(
 
     override fun createReview(isbn: String, request: CreateReviewRequest) = service.createReview(isbn, request)
 
-    override fun replaceReview(isbn: String, reviewId: Long, request: CreateReviewRequest) = service.replaceReview(isbn,  request)
+    override fun replaceReview(isbn: String, reviewId: Long, request: CreateReviewRequest) = service.replaceReview(isbn, reviewId, request)
 
     override fun updateReview(isbn: String, reviewId: Long, request: UpdateReviewRequest) = service.updateReview(isbn, reviewId, request)
 

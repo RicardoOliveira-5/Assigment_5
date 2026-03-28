@@ -21,7 +21,7 @@ class ApiTokenFilter(
 
         val token = request.getHeader("X-Api-Token")
 
-        if (!apiTokenService.isValidToken(token)) {
+        if (token != null && !apiTokenService.isValidToken(token) ) {
 
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = "application/json"

@@ -70,6 +70,7 @@ class SecurityConfig {
 
         http.authorizeHttpRequests { auth ->
             auth
+                // 🔓 Swagger/OpenAPI público
                 .requestMatchers(
                     "/v3/api-docs",
                     "/v3/api-docs/**",
@@ -77,29 +78,13 @@ class SecurityConfig {
                     "/swagger-ui.html"
                 ).permitAll()
 
+                .requestMatchers("/books/**").permitAll()
 
-                // GET requests → qualquer utilizador autenticado
-                .requestMatchers(HttpMethod.GET, BOOKS_ENDPOINT).permitAll()
-
-                // Criar / editar livros → EDITOR ou ADMIN
-                .requestMatchers(HttpMethod.POST, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PUT, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PATCH, BOOKS_ENDPOINT).hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-
-                // Criar / editar reviews → EDITOR ou ADMIN
-                .requestMatchers(HttpMethod.POST, "$BOOKS_ENDPOINT/reviews/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PUT, "$BOOKS_ENDPOINT/reviews/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-                .requestMatchers(HttpMethod.PATCH, "$BOOKS_ENDPOINT/reviews/**").hasAnyRole(ROLE_EDITOR, ROLE_ADMIN)
-
-
-                // DELETE book → ADMIN
-                .requestMatchers(HttpMethod.DELETE, BOOKS_ENDPOINT).hasRole(ROLE_ADMIN)
-
-                // resto autenticado
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
         }
 
         http.httpBasic {}
+
         return http.build()
     }
 }

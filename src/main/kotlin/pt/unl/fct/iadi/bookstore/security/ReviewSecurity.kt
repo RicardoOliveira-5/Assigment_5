@@ -10,7 +10,7 @@ class ReviewSecurity(private val service: BookStoreService) {
 
     fun isAuthor(isbn: String, reviewId: Long, authentication: Authentication): Boolean {
         return try {
-            service.getBook(isbn)
+
             val review = service.findReviewById(reviewId)
             review.author == authentication.name
         } catch (e: ReviewNotFoundException) {

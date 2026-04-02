@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
-
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -64,9 +64,9 @@ class SecurityConfig {
     )
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun securityFilterChain(http: HttpSecurity, apiTokenFilter: ApiTokenFilter): SecurityFilterChain {
         http.csrf { it.disable() }
-
+        http.addFilterBefore(apiTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
         http.authorizeHttpRequests { auth ->
             auth
                 // 🔓 Swagger/OpenAPI público

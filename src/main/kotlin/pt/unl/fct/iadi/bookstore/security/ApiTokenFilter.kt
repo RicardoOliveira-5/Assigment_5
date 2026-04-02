@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
-//@Profile("!test")
 class ApiTokenFilter(
     private val apiTokenService: ApiTokenService
 ) : OncePerRequestFilter() {
@@ -26,7 +25,7 @@ class ApiTokenFilter(
             filterChain.doFilter(request, response)
             return
         }
-        if (token != null && !apiTokenService.isValidToken(token) ) {
+        if (token == null || !apiTokenService.isValidToken(token) ) {
 
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = "application/json"

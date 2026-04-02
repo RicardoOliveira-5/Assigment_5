@@ -25,7 +25,7 @@ class ApiTokenFilter(
             filterChain.doFilter(request, response)
             return
         }
-        if (token == null && !apiTokenService.isValidToken(token) ) {
+        if (token == null || !apiTokenService.isValidToken(token) ) {
 
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = "application/json"

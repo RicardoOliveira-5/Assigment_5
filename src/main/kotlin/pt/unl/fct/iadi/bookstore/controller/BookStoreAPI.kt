@@ -251,7 +251,7 @@ interface BookStoreAPI {
             )
         ]
     )
-    @PreAuthorize("@reviewSecurity.isAuthor(#reviewId, authentication)")
+    @PreAuthorize("@reviewSecurity.isAuthor(#isbn, #reviewId, authentication)")
     @PutMapping("/{isbn}/reviews/{reviewId}")
     fun replaceReview(@PathVariable isbn: String,
                       @Parameter(name = "reviewId", description = "Review id", required = true)
@@ -282,12 +282,12 @@ interface BookStoreAPI {
             )
         ]
     )
-    @PreAuthorize("@reviewSecurity.isAuthor(#reviewId, authentication)")
+    @PreAuthorize("@reviewSecurity.isAuthor(#isbn, #reviewId, authentication)")
     @PatchMapping("/{isbn}/reviews/{reviewId}")
     fun updateReview(@PathVariable isbn: String,
                      @Parameter(name = "reviewId", description = "Review id", required = true)
                      @PathVariable reviewId:Long,
-                     @Valid @RequestBody request: UpdateReviewRequest): ReviewResponse
+                      @RequestBody request: UpdateReviewRequest): ReviewResponse
 
 
     @Operation(
@@ -304,7 +304,7 @@ interface BookStoreAPI {
             )
         ]
     )
-    @PreAuthorize("@reviewSecurity.isAuthor(#reviewId, authentication) or hasRole('ADMIN')")
+    @PreAuthorize("@reviewSecurity.isAuthor(#isbn, #reviewId, authentication) or hasRole('ADMIN')")
     @DeleteMapping("/{isbn}/reviews/{reviewId}")
     fun deleteReview(@PathVariable isbn: String,
                      @Parameter(name = "reviewId", description = "Review id", required = true)

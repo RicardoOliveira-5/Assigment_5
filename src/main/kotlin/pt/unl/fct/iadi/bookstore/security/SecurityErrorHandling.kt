@@ -8,6 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
+import pt.unl.fct.iadi.bookstore.service.ReviewNotFoundException
 
 data class SecurityError(val error: String, val message: String)
 
@@ -26,5 +27,11 @@ class SecurityErrorHandling {
     fun handleAccessDenied(ex: AccessDeniedException): ResponseEntity<SecurityError> {
         val body = SecurityError(error = "FORBIDDEN", message = ex.message ?: "Access denied")
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body)
+    }
+
+    @ExceptionHandler(ReviewNotFoundException::class)
+    fun handleReviewNotFound(ex: ReviewNotFoundException): ResponseEntity<SecurityError> {
+        val body = SecurityError(error = "NOT_FOUND", message = ex.message ?: "Review not found")
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
     }
 }
